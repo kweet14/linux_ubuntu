@@ -6,7 +6,6 @@ from collections import defaultdict
 
 def get_wifi_networks():
     try:
-        # Используем nmcli для получения списка сетей
         result = subprocess.run(
             ['nmcli', '-t', '-f', 'SSID,SIGNAL', 'device', 'wifi', 'list'],
             stdout=subprocess.PIPE,
@@ -27,15 +26,14 @@ def parse_networks(network_lines):
             continue
         try:
             ssid, signal = line.split(':')[:2]
-            if ssid:  # Игнорируем сети без SSID
+            if ssid:
                 networks[ssid].append(int(signal))
         except ValueError:
             continue
-    # Для каждой сети берем максимальный сигнал
+
     return {ssid: max(signals) for ssid, signals in networks.items()}
 
 def signal_to_dots(signal_strength):
-    """Конвертируем силу сигнала в количество точек (1-4)"""
     if signal_strength > 75:
         return '●●●●'
     elif signal_strength > 50:
@@ -46,7 +44,6 @@ def signal_to_dots(signal_strength):
         return '●○○○'
 
 def display_networks(networks):
-    # Сортируем сети по силе сигнала (от сильного к слабому)
     sorted_networks = sorted(networks.items(), key=lambda x: x[1], reverse=True)
 
     print("\nДоступные Wi-Fi сети:")
