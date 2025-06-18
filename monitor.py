@@ -1,6 +1,5 @@
 import psutil
 import platform
-import os
 import socket
 import time
 import getpass
