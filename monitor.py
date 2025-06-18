@@ -40,14 +40,6 @@ def top_processes(n=5):
 
     return sorted(processes, key=lambda p: p['cpu_percent'], reverse=True)[:n]
 
-def get_open_ports():
-    connections = psutil.net_connections(kind='inet')
-    listening = [c for c in connections if c.status == 'LISTEN']
-    ports = []
-    for conn in listening:
-        address = f"{conn.laddr.ip}:{conn.laddr.port}"
-        ports.append(address)
-    return ports
 
 def system_info():
     print(f"Имя хоста     : {socket.gethostname()}")
@@ -86,10 +78,6 @@ def show_processes():
     for proc in top_processes():
         print(f"PID {proc['pid']:5} | {proc['cpu_percent']:5.1f}% | {proc['name']}")
 
-def show_ports():
-    print("\nОткрытые порты (LISTEN):")
-    for port in get_open_ports():
-        print(f"  {port}")
 
 def show_battery():
     battery = psutil.sensors_battery()
@@ -106,7 +94,6 @@ def main():
     disk_info()
     network_info()
     show_processes()
-    show_ports()
     show_battery()
 
 if __name__ == "__main__":
