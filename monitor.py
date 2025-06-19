@@ -1,18 +1,20 @@
-import psutil
-import platform
-import socket
-import time
-import getpass
-from datetime import datetime
+import psutil  # получение информации о системе и процессах
+import platform  # получение информации об ОС
+import socket  # работа с сетевыми интерфейсами
+import time  # работа со временем
+import getpass  # получение имени текущего пользователя
+from datetime import datetime  # работа с датой и временем
 
+# перевод байтов в другие форматы
 def bytes_to_readable(n):
-    units = ('Б', 'КБ', 'МБ', 'ГБ', 'ТБ')
+    units = ('Б', 'КБ', 'МБ', 'ГБ', 'ТБ')  
     for unit in units:
         if n < 1024:
             return f"{n:.1f} {unit}"
         n /= 1024
-    return f"{n:.1f} ПБ"
+    return f"{n:.1f} ПБ"  
 
+# получение IP-адресов сетевых интерфейсов
 def get_ip_addresses():
     addresses = {}
     for interface, interface_addresses in psutil.net_if_addrs().items():
@@ -21,9 +23,11 @@ def get_ip_addresses():
                 addresses[interface] = address.address
     return addresses
 
+# получение процессов по загрузке CPU
 def top_processes(n=5):
     processes = []
 
+    # сброс значения CPU 
     for proc in psutil.process_iter():
         try:
             proc.cpu_percent(None)
@@ -32,15 +36,17 @@ def top_processes(n=5):
 
     time.sleep(1)
 
+    #  получение информации о загрузке CPU
     for proc in psutil.process_iter(['pid', 'name', 'cpu_percent']):
         try:
             processes.append(proc.info)
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
 
+    # сортировка по убыванию 
     return sorted(processes, key=lambda p: p['cpu_percent'], reverse=True)[:n]
 
-
+# информация о системе
 def system_info():
     print(f"Имя хоста     : {socket.gethostname()}")
     print(f"Пользователь  : {getpass.getuser()}")
@@ -49,6 +55,7 @@ def system_info():
     uptime = time.strftime('%H:%M:%S', time.gmtime(time.time() - psutil.boot_time()))
     print(f"Аптайм        : {uptime}")
 
+# информация об оперативной памяти
 def memory_info():
     mem = psutil.virtual_memory()
     print("\nИспользование оперативной памяти:")
@@ -56,6 +63,7 @@ def memory_info():
     print(f"Использовано : {bytes_to_readable(mem.used)} ({mem.percent}%)")
     print(f"Свободно  : {bytes_to_readable(mem.available)}")
 
+# информация о дисковом пространстве
 def disk_info():
     disk = psutil.disk_usage('/')
     print("\nИспользование диска (/):")
@@ -63,22 +71,25 @@ def disk_info():
     print(f"Использовано : {bytes_to_readable(disk.used)} ({disk.percent}%)")
     print(f"Свободно  : {bytes_to_readable(disk.free)}")
 
+# информация о загрузке процессора
 def cpu_info():
     print("\nЗагрузка процессора:")
     print(f"Логических ядер: {psutil.cpu_count(logical=True)}")
     print(f"Загруженность  : {psutil.cpu_percent(interval=1)}%")
 
+# информация о сетевых интерфейсах и их IP-адресах
 def network_info():
     print("\nIP-адреса сетевых интерфейсов:")
     for interface, ip in get_ip_addresses().items():
         print(f"  {interface}: {ip}")
 
+# вывод списка процессов по загрузке процессора
 def show_processes():
     print("\nТоп-5 процессов по загрузке CPU:")
     for proc in top_processes():
         print(f"PID {proc['pid']:5} | {proc['cpu_percent']:5.1f}% | {proc['name']}")
 
-
+# информация о батарее
 def show_battery():
     battery = psutil.sensors_battery()
     if battery:
@@ -87,6 +98,7 @@ def show_battery():
     else:
         print("\nБатарея: недоступна")
 
+#  вызов всех функций
 def main():
     system_info()
     cpu_info()
